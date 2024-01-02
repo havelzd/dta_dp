@@ -1,0 +1,53 @@
+# Unity-specific files and directories
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+
+# Visual Studio files
+*.sln
+*.csproj
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+
+# MonoDevelop files
+*.userprefs
+*.user
+
+# Rider files
+.idea/
+
+# macOS folder attributes
+.DS_Store
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# JetBrains Rider
+.idea/
+
+# User-specific files
+*.suo
+*.user
+*.sln.docstates
+
+# Windows Installer files
+*.swp
+
