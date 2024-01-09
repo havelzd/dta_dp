@@ -29,8 +29,9 @@ public class MessageConverter
                         result = JsonConvert.DeserializeObject<SoldierListMessage>(message);
                         break;
                     case "Welcome":
-                    default:
                         return new HelloMessage();
+                    default:
+                        throw new Exception();
                 }
             }
 

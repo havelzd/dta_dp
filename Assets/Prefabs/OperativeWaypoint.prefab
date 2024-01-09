@@ -52,15 +52,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a054a6f110854c9f32ac9cb9af22b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  settings: {fileID: 0}
   ScaleLowerBound: 0.3
   MinDistMeters: 5
   MaxDistMeters: 200
   statusColor:
     serializedVersion: 2
-    key0: {r: 1, g: 0, b: 0, a: 1}
-    key1: {r: 1, g: 0.5754003, b: 0, a: 1}
-    key2: {r: 0.010703921, g: 1, b: 0, a: 0}
+    key0: {r: 0.028591871, g: 1, b: 0, a: 1}
+    key1: {r: 1, g: 0.62402993, b: 0, a: 1}
+    key2: {r: 1, g: 0, b: 0.13757896, a: 0}
     key3: {r: 0, g: 0, b: 0, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
     key5: {r: 0, g: 0, b: 0, a: 0}
@@ -89,6 +88,7 @@ MonoBehaviour:
   id: {fileID: 4404417513459440551}
   status: {fileID: 8781401082748210108}
   distanceText: {fileID: 8710325833592921277}
+  mlsText: {fileID: 0}
 --- !u!1 &6635605494151226779
 GameObject:
   m_ObjectHideFlags: 0
@@ -155,7 +155,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: 20m
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

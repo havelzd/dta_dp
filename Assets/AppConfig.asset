@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   serverHost: 192.168.0.115
   serverPort: 8080
-  isDebug: 1
+  isDebug: 0

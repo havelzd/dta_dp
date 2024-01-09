@@ -13,4 +13,6 @@ public class OperativeData
     public int missionId { get; set; }
 
     public long lastTimestamp { get; set; }
+
+    public string status { get; set; } 
 }

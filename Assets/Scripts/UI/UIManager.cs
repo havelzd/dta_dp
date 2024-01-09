@@ -21,6 +21,8 @@ namespace UI
         [SerializeField] GameObject screenButtons;
         [SerializeField] GameObject mapBox;
 
+        private bool mapOpened = false;
+
         public void Start()
         {
             settingsScreen.SetActive(false);
@@ -75,8 +77,9 @@ namespace UI
 
         public void OnMap()
         {
-            screenButtons.SetActive(false);
-            mapBox.SetActive(true);
+            screenButtons.SetActive(true);
+            mapOpened = !mapOpened;
+            mapBox.SetActive(mapOpened);
         }
 
         public void OnMapClose()

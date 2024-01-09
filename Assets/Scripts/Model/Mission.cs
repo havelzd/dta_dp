@@ -11,5 +11,5 @@ public class Mission
 
     public string description { get; set; }
 
-    public Squad[] military_hieararchy { get; set; }
+    public List<Squad> military_hieararchy = new();
 }
