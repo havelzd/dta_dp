@@ -14,11 +14,5 @@ namespace Connection.WS
             WebSocket ws = new WebSocket(String.Format("ws://{0}:{1}/ws/{2}", host, port, channel));
             return new WSChannel(ws);
         }
-
-        public static Channel CreateMockChannel(string host, string port, string channel)
-        {
-            WebSocket ws = new WebSocket(String.Format("ws://{0}:{1}/ws/{2}", host, port, channel));
-            return new WSChannelMock(ws);
-        }
     }
 }

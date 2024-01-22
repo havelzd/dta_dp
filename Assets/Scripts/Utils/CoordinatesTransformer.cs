@@ -10,6 +10,7 @@ public class CoordinatesTransformer
     const double EARTH_RADIUS_PO_M = 6356752;
     const double EARTH_RADIUS_MEAN_M = 6371000.0;
     const double DEGREE_TO_RADIANS = Math.PI / 180.0;
+    const double ORIGIN_SHIFT = 2 * Mathf.PI * 6378137 / 2.0;
 
     public static Vector3 ConvertGeoToCartesian(
             double userLat, double userLon, double userAlt,
@@ -58,23 +59,54 @@ public class CoordinatesTransformer
         return degrees * DEGREE_TO_RADIANS;
     }
 
-    public static Vector2 LatLonToWebMercator(float lat, float lon)
+    // Convert lat/lon to Mercator px, py
+    public static Vector2 LatLonToMeters(float latitude, float longitude)
     {
-        float x = (lon + 180.0f) / 360.0f;
+        var p = new Vector2();
+        p.x = (float)(longitude * ORIGIN_SHIFT / 180.0);
+        p.y = (float)(Mathf.Log(Mathf.Tan((float)((90 + latitude) * Mathf.PI / 360.0))) / (Mathf.PI / 180.0));
+        p.y = (float)(p.y * ORIGIN_SHIFT / 180.0);
+        return p;
+    }
 
-        float sinLatitude = Mathf.Sin(lat * Mathf.Deg2Rad);
-        float y = 0.5f - Mathf.Log((1.0f + sinLatitude) / (1.0f - sinLatitude)) / (4.0f * Mathf.PI);
+    // Convert Mercator meters to pixel coordinates within given bounds and map size
+    public static Vector2 MetersToPixels(Vector2 m, Vector2 minPoint, Vector2 maxPoint, float mapWidth, float mapHeight)
+    {
+        var mapWidthGeo = maxPoint.x - minPoint.x;
+        var mapHeightGeo = maxPoint.y - minPoint.y;
+
+        var x = (((m.x - minPoint.x) / mapWidthGeo) * mapWidth) + mapWidth /2 ;
+        var y = ((1 - (m.y - minPoint.y) / mapHeightGeo) * mapHeight) - mapHeight /2; // Inverting Y for Unity's coordinate system
 
         return new Vector2(x, y);
     }
 
-    public static Vector2 NormalizeMercatorCoordinates(Vector2 mercatorPos, Vector2 mercatorTopLeft, Vector2 mercatorBottomRight)
-    {
-        Vector2 normalized = new Vector2(
-            (mercatorPos.x - mercatorTopLeft.x) / (mercatorBottomRight.x - mercatorTopLeft.x),
-            (mercatorPos.y - mercatorTopLeft.y) / (mercatorBottomRight.y - mercatorTopLeft.y)
-        );
+    // Convert lat/lon to pixel coordinates within given bounds and map size
+    //public static Vector2 LatLonToPixel(float latitude, float longitude, Vector2 minLatLon, Vector2 maxLatLon, float mapWidth, float mapHeight)
+    //{
+    //    var meters = LatLonToMeters(latitude, longitude);
+    //    var minPoint = LatLonToMeters(minLatLon.x, minLatLon.y);
+    //    var maxPoint = LatLonToMeters(maxLatLon.x, maxLatLon.y);
+    //    return MetersToPixels(meters, minPoint, maxPoint, mapWidth, mapHeight);
+    //}
 
-        return normalized;
+    static Tuple<double,double> LatLonToWebMercator(float lat, float lon)
+    {
+        double x = (lon + 180) / 360;
+        double sinLatitude = Mathf.Sin(lat * Mathf.Deg2Rad);
+        double y = (0.5 - Mathf.Log((float)((1 + sinLatitude) / (1 - sinLatitude))) / (4 * Mathf.PI));
+        return Tuple.Create(x, y);
+    }
+
+    public static Vector2 ProjectToMapBounds(float lat, float lon, float mapWidth, float mapHeight, float minLat, float minLon, float maxLat, float maxLon)
+    {
+        var mercatorCoords = LatLonToWebMercator(lat, lon);
+        var minMercator = LatLonToWebMercator(minLat, minLon);
+        var maxMercator = LatLonToWebMercator(maxLat, maxLon);
+
+        double normalizedX = (mercatorCoords.Item1 - minMercator.Item1) / (maxMercator.Item1 - minMercator.Item1);
+        double normalizedY = (mercatorCoords.Item2 - minMercator.Item2) / (maxMercator.Item2 - minMercator.Item2);
+
+        return new Vector2((float)(normalizedX * mapWidth), (float)(normalizedY * mapHeight));
     }
 }

@@ -77,6 +77,11 @@ public class WaypointController : MonoBehaviour
 
         if (dot < 0)
         {
+            if(Vector3.Distance(operative.Operative3d.transform.position,arCamera.transform.position) < 5)
+            {
+                operative.UiWaypoint.SetActive(false);
+                return;
+            }
             if(operative.lastData != null && (operative.lastData.mls >= clampAt))
             {
                 UpdateMarker(operative);
@@ -111,10 +116,14 @@ public class WaypointController : MonoBehaviour
         List<ARRaycastHit> hits = new();
         if (arRaycastManager.Raycast(pos, hits, TrackableType.AllTypes)) {
             if(hits.Count > 0) {
-                if (hits[0].trackable.gameObject == target)
+                foreach(var hit in hits)
                 {
-                    return true;
-                }   
+                    if (hit.trackable.gameObject == target)
+                    {
+                        return true;
+                    }
+                }
+                   
             }
         }
 

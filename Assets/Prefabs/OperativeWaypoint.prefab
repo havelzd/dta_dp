@@ -52,7 +52,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e35a054a6f110854c9f32ac9cb9af22b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ScaleLowerBound: 0.3
+  ScaleLowerBound: 0.2
   MinDistMeters: 5
   MaxDistMeters: 200
   statusColor:

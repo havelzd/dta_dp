@@ -140,7 +140,7 @@ public class MissionController : MonoBehaviour
         GameObject marker3d = operative.Operative3d;
         Vector3 pos;
 
-        pos = CoordinatesTransformer.ConvertGeoToCartesian(_Location.x, _Location.y, _Location.z, data.location.lat, data.location.lon, data.location.altitude);
+        pos = CoordinatesTransformer.ConvertGeoToCartesian(_Location.x, _Location.y, _Location.z, data.location.lat, data.location.lon, data.location.altitude - arCamera.transform.position.y);
         if (operative.Operative3d == null)
         {
             marker3d = CreateMarker3D(operative, pos);
@@ -150,42 +150,46 @@ public class MissionController : MonoBehaviour
             marker3d.transform.position = pos;
         }
 
-        //if (arEarthManager.IsGeospatialModeSupported(GeospatialMode.Enabled) == FeatureSupported.Supported)
-        //{
-        //    ARGeospatialAnchor anchor = null;
-        //    try
-        //    {
-        //        anchor = ARAnchorManagerExtensions.AddAnchor(arAnchorManager, data.location.lat, data.location.lon, data.location.altitude, Quaternion.identity);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        ErrorDialog.Instance.ShowMessage(e.Message);
-        //        Debug.LogError(e);
-        //    }
-        //    finally
-        //    {
+        if (arEarthManager.IsGeospatialModeSupported(GeospatialMode.Enabled) == FeatureSupported.Supported)
+        {
+            ARGeospatialAnchor anchor = null;
+            try
+            {
+                anchor = ARAnchorManagerExtensions.AddAnchor(arAnchorManager, data.location.lat, data.location.lon, data.location.altitude, Quaternion.identity);
+            }
+            catch (Exception e)
+            {
+                ErrorDialog.Instance.ShowMessage(e.Message);
+                Debug.LogError(e);
+            }
+            finally
+            {
 
-        //        if (anchor != null)
-        //        {
-        //            marker3d.transform.parent = anchor.transform;
-        //        }
-        //    }
-        //}
+                if (anchor != null)
+                {
+                    if (marker3d.transform.parent != null)
+                    {
+                        Destroy(marker3d.transform.parent.gameObject);
+                    }
+                    marker3d.transform.parent = anchor.transform;
+                }
+            }
+        }
 
         operative.Operative3d = marker3d;
 
-        //var uiMarker = operative.UiWaypoint;
-        //if(uiMarker == null)
-        //{
-        //    uiMarker = Instantiate(operative2dPrefab, canvas.transform);
-        //    operative.waypointMarker = uiMarker.GetComponent<OperativeMarker>();
-        //    operative.UiWaypoint = uiMarker;
-        //    waypointController.operatives.Add(operative);
-        //    uiMarker.transform.SetAsFirstSibling();
-        //}
+        var uiMarker = operative.UiWaypoint;
+        if (uiMarker == null)
+        {
+            uiMarker = Instantiate(operative2dPrefab, canvas.transform);
+            operative.waypointMarker = uiMarker.GetComponent<OperativeMarker>();
+            operative.UiWaypoint = uiMarker;
+            waypointController.operatives.Add(operative);
+            uiMarker.transform.SetAsFirstSibling();
+        }
 
         operative.objectMarker.Data = data;
-        //operative.waypointMarker.Data = data;
+        operative.waypointMarker.Data = data;
     }
 
     private GameObject CreateMarker3D(OperativeWrapper operative, Vector3 pos)

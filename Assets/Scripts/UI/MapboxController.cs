@@ -44,7 +44,9 @@ public class MapboxController : MonoBehaviour
     Tuple<Vector2, Vector2> bounds = null;
 
     Vector2 mapSize;
-    Vector2 mapPos;
+
+    float currentHeading;
+    float rotationSpeed = 0.8f;
 
 
     private int zoom = 17;
@@ -52,13 +54,13 @@ public class MapboxController : MonoBehaviour
     private void Awake()
     {
         locationService = LocationService.Instance;
+        currentHeading = locationService.GetCompassHeading();
         width = Screen.width > 1080 ? 1080 : Screen.width;
         height = Screen.height > 1280 ? 1280 : Screen.height;
 
         RectTransform rectTransform = mapImage.rectTransform;
         rectTransform.sizeDelta = new Vector2(width, height);
         mapSize = new Vector2(width, height);
-        mapPos = rectTransform.position;
 
         missionController = missionControllerGO.GetComponent<MissionController>();
     }
@@ -96,7 +98,7 @@ public class MapboxController : MonoBehaviour
                     marker.GetComponentInChildren<TextMeshProUGUI>().text = "" + int.Parse(lastData.id);
                     markers[key].marker = marker;
                 }
-                UpdateMarker(markers[key].marker, markers[key].pos.y, markers[key].pos.x, markers[key].mls);
+                UpdateMarker(markers[key].marker, markers[key].pos.x, markers[key].pos.y, markers[key].mls);
             }
         }
         if(missionController.operatives.Count > 0)
@@ -112,10 +114,13 @@ public class MapboxController : MonoBehaviour
             userIcon.GetComponent<RectTransform>().position= new Vector2(mapSize.x / 2, mapSize.y / 2);
         }else
         {
+            Vector2 pos = CalculatePos(locationService.Latitude, locationService.Longitude);
             userIcon.GetComponent<RectTransform>().position = CalculatePos(locationService.Latitude, locationService.Longitude);
         }
 
-        userIcon.transform.rotation = Quaternion.Euler(0, 0, -locationService.GetCompassHeading());
+        float targetHeading = locationService.GetCompassHeading();
+        currentHeading = Mathf.Lerp(currentHeading, targetHeading, rotationSpeed * Time.deltaTime);
+        userIcon.transform.rotation = Quaternion.Euler(0,0, (float)Math.Round((double)targetHeading,2));
 
     }
 
@@ -196,22 +201,9 @@ public class MapboxController : MonoBehaviour
         return changed || !Mathf.Approximately(lastLat, locationService.Latitude) || !Mathf.Approximately(lastLon, locationService.Longitude);
     }
 
-    Vector2 ConvertToRectTransform(Vector2 normalizedPos)
-    {
-        //return new Vector2(normalizedPos.x * mapSize.x - mapPos.x / 2, normalizedPos.y * mapSize.y - mapPos.y);
-        return new Vector2(normalizedPos.x * mapSize.x + mapPos.x /2, normalizedPos.y * mapSize.y);
-    }
-
     private Vector2 CalculatePos(float lat, float lon)
     {
-        Vector2 mercatorPos = CoordinatesTransformer.LatLonToWebMercator(lat, lon);
-        Vector2 mercatorTopLeft = CoordinatesTransformer.LatLonToWebMercator(bounds.Item1.y, bounds.Item2.x);
-        Vector2 mercatorBottomRight = CoordinatesTransformer.LatLonToWebMercator(bounds.Item2.y, bounds.Item1.x);
-
-        Vector2 normalizedPosition = CoordinatesTransformer.NormalizeMercatorCoordinates(mercatorPos, mercatorTopLeft, mercatorBottomRight);
-        Vector2 uiPosition = ConvertToRectTransform(normalizedPosition);
-
-        return uiPosition;
+        return CoordinatesTransformer.ProjectToMapBounds(lat, lon, width, height, bounds.Item1.x, bounds.Item1.y, bounds.Item2.x, bounds.Item2.y);
     }
 
     void UpdateMarker(GameObject marker, float lat, float lon, float mls)
@@ -221,8 +213,8 @@ public class MapboxController : MonoBehaviour
         {
             return;
         }
-
-        marker.GetComponent<RectTransform>().position = CalculatePos(lat, lon);
+        Vector2 pos = CalculatePos(lat, lon);
+        marker.GetComponent<RectTransform>().position = pos;
         marker.GetComponent<UnityEngine.UI.Image>().color = operativeColor.Evaluate(mls / 100);
     }
 
@@ -246,7 +238,11 @@ public class MapboxController : MonoBehaviour
         minLon = Mathf.Min(minLon, lon);
         maxLat = Mathf.Max(maxLat, lat);
         maxLon = Mathf.Max(maxLon, lon);
-        
+
+        minLat -= 0.00009f;
+        maxLat += 0.00009f;
+        minLon -= 0.00009f;
+        maxLon += 0.00009f;
 
         return Tuple.Create(new Vector2(minLat,minLon), new Vector2(maxLat, maxLon));
     }
